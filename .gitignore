@@ -6,3 +6,5 @@
 ~$*
 __pycache__/
 *.pyc
+# ไม่ต้อง track ไฟล์ชื่อภาษาไทย (ใช้ scores.html แทน)
+*คะแนน*.html

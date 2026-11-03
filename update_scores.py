@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 BASE  = os.path.dirname(os.path.abspath(__file__))
 XLSX  = os.path.join(BASE, "สะสมคะแนน.xlsx")
-HTML  = os.path.join(BASE, "สรุปคะแนน.html")
+HTML  = os.path.join(BASE, "scores.html")
 
 # ── 1. อ่าน Excel ───────────────────────────────────────────
 print("📖 กำลังอ่าน", XLSX)
