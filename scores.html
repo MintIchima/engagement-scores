@@ -538,7 +538,7 @@ function renderMenu(filtered){
   if(!filtered.length){
     document.getElementById('menuBody').innerHTML='<tr><td colspan="5" class="no-data">ไม่มีข้อมูล</td></tr>';return;
   }
-  const sorted=[...filtered].sort((a,b)=>a.date.localeCompare(b.date)||a.name.localeCompare(b.name));
+  const sorted=[...filtered].sort((a,b)=>b.date.localeCompare(a.date)||a.name.localeCompare(b.name));
   document.getElementById('menuBody').innerHTML=sorted.map(r=>`
     <tr>
       <td class="td-date">${toDisplay(r.date)}</td>
