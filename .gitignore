@@ -1,0 +1,8 @@
+# ไม่ต้อง upload ไฟล์พวกนี้
+*.xlsx
+*.pptx
+*.pptm
+*.bat
+~$*
+__pycache__/
+*.pyc

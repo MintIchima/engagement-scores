@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>สรุปคะแนนสะสม "จานเด็ดเสร็จแน่"</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI','Sarabun',sans-serif;background-color:#1c1a18;min-height:100vh;padding:24px 16px 48px;color:#e0e0e0;position:relative;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;z-index:-2;background-color:#1e1c1a;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")}
+    body::after{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse 120% 120% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)}
+
+    /* hero */
+    .hero{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 28px;max-width:780px;padding:32px 20px 28px}
+    .hero::before{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#f5f0ea 0%,#e8e0d4 45%,#cfc5b4 70%,#b5a99a 100%);box-shadow:0 6px 28px rgba(0,0,0,.55),inset 0 2px 10px rgba(255,255,255,.5);z-index:0}
+    .hero::after{content:'';position:absolute;width:130px;height:130px;border-radius:50%;border:2px solid rgba(255,255,255,.18);z-index:1}
+    .hero-text{position:relative;z-index:2;text-align:center}
+    .hero-text h1{font-size:clamp(1.4rem,4vw,2.1rem);color:#8b3a1a;text-shadow:0 2px 6px rgba(255,255,255,.35);font-weight:900}
+    .deco-spoon{position:fixed;top:20px;right:60px;font-size:3.5rem;transform:rotate(30deg);opacity:.15;pointer-events:none;z-index:0;filter:grayscale(1)}
+    .deco-spice{position:fixed;top:10px;right:20px;font-size:2rem;opacity:.12;pointer-events:none;z-index:0;transform:rotate(-15deg)}
+    .deco-salt{position:fixed;bottom:30px;right:100px;font-size:1.8rem;opacity:.1;pointer-events:none;z-index:0}
+
+    /* picker */
+    .picker-box{background:rgba(0,0,0,.35);border:1px solid rgba(200,168,130,.3);border-radius:16px;padding:18px 24px;max-width:700px;margin:0 auto 24px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+    .picker-box label{font-size:.82rem;color:#c8a882;display:block;margin-bottom:4px}
+    .picker-box input[type=text]{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;padding:7px 12px;font-size:.95rem;outline:none;width:136px;letter-spacing:1px}
+    .picker-box input[type=text]:focus{border-color:#c8722a;border-width:2px}
+    .picker-box input[type=text]::placeholder{color:#555}
+    .btn-apply{background:#c8722a;color:#fff;border:none;border-radius:8px;padding:9px 24px;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s}
+    .btn-apply:hover{background:#e0843a}
+    .range-label{flex:1;min-width:200px;font-size:.85rem;color:#aaa;align-self:center;text-align:right}
+    .input-hint{font-size:.72rem;color:#666;margin-top:3px}
+    .input-error{border-color:#e55 !important}
+
+    /* week tabs */
+    .week-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:28px}
+    .week-tab{padding:7px 18px;border-radius:999px;border:2px solid #c8722a;background:transparent;color:#c8a882;cursor:pointer;font-size:.85rem;font-weight:600;transition:.2s}
+    .week-tab:hover,.week-tab.active{background:#c8722a;color:#fff}
+    .week-tab.all-tab{border-color:#b09070;color:#b09070}
+    .week-tab.all-tab:hover,.week-tab.all-tab.active{background:#b09070;color:#1a1510}
+
+    /* podium */
+    .podium{display:flex;justify-content:center;align-items:flex-end;gap:16px;margin-bottom:28px}
+    .podium-card{text-align:center;border-radius:16px;padding:14px 18px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);min-width:108px}
+    .podium-card.rank-1{border-color:#c8722a;background:rgba(200,114,42,.15);transform:translateY(-16px)}
+    .podium-card.rank-2{border-color:#b0a090;background:rgba(176,160,144,.08)}
+    .podium-card.rank-3{border-color:#cd7f32;background:rgba(205,127,50,.08)}
+    .podium-medal{font-size:1.9rem;margin-bottom:4px}
+    .podium-name{font-size:1rem;font-weight:700;color:#fff}
+    .podium-pts{font-size:1.3rem;font-weight:800;color:#e8a060;margin-top:4px}
+    .podium-pts span{font-size:.72rem;color:#aaa;font-weight:400}
+
+    /* summary cards */
+    .summary-grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:28px}
+    .s-card{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 20px;min-width:130px;text-align:center}
+    .s-card .s-val{font-size:1.4rem;font-weight:800;color:#e8a060}
+    .s-card .s-lbl{font-size:.75rem;color:#c8a882;margin-top:2px}
+
+    /* section wrapper */
+    .section{margin-bottom:28px}
+    .table-wrapper{overflow-x:auto;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+    .tbl-header{background:rgba(0,0,0,.5);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-radius:16px 16px 0 0;border-bottom:2px solid rgba(200,114,42,.35)}
+    .tbl-title{font-size:.95rem;font-weight:700;color:#e8a060}
+    .tbl-sub{font-size:.82rem;color:#c8a882}
+
+    /* score table */
+    table.score{width:100%;border-collapse:collapse;background:rgba(0,0,0,.2);font-size:.88rem}
+    table.score thead tr{background:rgba(200,114,42,.15)}
+    table.score thead th{padding:11px 13px;text-align:center;color:#e8a060;font-weight:700;border-bottom:2px solid rgba(200,114,42,.3);white-space:nowrap}
+    table.score thead th:first-child{text-align:left;padding-left:18px}
+    table.score tbody tr{border-bottom:1px solid rgba(255,255,255,.05);transition:background .15s}
+    table.score tbody tr:hover{background:rgba(255,255,255,.06)}
+    table.score tbody td{padding:10px 13px;text-align:center;color:#ddd}
+    table.score tbody td:first-child{text-align:left;padding-left:18px;font-weight:600;color:#fff;white-space:nowrap}
+    .rank-badge{display:inline-block;width:24px;height:24px;line-height:24px;border-radius:50%;font-size:.72rem;font-weight:700;margin-right:7px;text-align:center}
+    .r1{background:#c8722a;color:#fff}.r2{background:#b0a090;color:#1a1510}.r3{background:#cd7f32;color:#fff}.rn{background:rgba(255,255,255,.1);color:#aaa}
+    .pts-cell{font-weight:800;font-size:1rem;color:#e8a060}
+    .zero{color:#444}
+    .likes-cell{color:#c8a882;font-weight:600}
+    .clickable{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+    .clickable:hover{color:#e8a060}
+
+    /* menu table */
+    table.menu{width:100%;border-collapse:collapse;background:rgba(0,0,0,.15);font-size:.85rem}
+    table.menu thead tr{background:rgba(200,114,42,.1)}
+    table.menu thead th{padding:10px 13px;text-align:left;color:#c8a882;font-weight:700;border-bottom:1px solid rgba(200,114,42,.2);white-space:nowrap}
+    table.menu tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+    table.menu tbody tr:hover{background:rgba(255,255,255,.05)}
+    table.menu tbody td{padding:9px 13px;color:#ccc;vertical-align:middle}
+    .td-date{color:#90caf9;white-space:nowrap;font-size:.8rem;min-width:80px}
+    .td-name{color:#e8c090;font-weight:600;white-space:nowrap;min-width:80px}
+    .td-menu{color:#fff}
+    .td-tags{white-space:nowrap}
+    .td-like{text-align:center;color:#c8a882;font-weight:600;white-space:nowrap}
+    .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:700;margin:1px}
+    .tag-hc{background:rgba(76,175,80,.2);color:#81c784}
+    .tag-fd{background:rgba(200,114,42,.2);color:#e8a060}
+    .tag-lb{background:rgba(205,127,50,.2);color:#ffb74d}
+    .tag-et{background:rgba(156,39,176,.2);color:#ce93d8}
+    .tag-ef{background:rgba(233,30,99,.2);color:#f48fb1}
+    .no-data{text-align:center;padding:32px;color:#555;font-size:.9rem}
+
+    /* modal */
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;justify-content:center;align-items:center;padding:16px}
+    .modal-bg.open{display:flex}
+    .modal{background:#2a2018;border:1px solid rgba(200,114,42,.4);border-radius:18px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;padding:24px}
+    .modal h2{color:#e8a060;margin-bottom:16px}
+    .modal-close{float:right;background:none;border:none;color:#aaa;font-size:1.4rem;cursor:pointer;line-height:1}
+    .modal-close:hover{color:#fff}
+    .detail-row{display:flex;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap}
+    .detail-date{color:#c8a882;font-size:.78rem;min-width:72px}
+    .detail-menu{color:#ddd;font-size:.85rem;flex:1}
+    .detail-like{color:#90caf9;font-size:.78rem;min-width:40px;text-align:right}
+  </style>
+</head>
+<body>
+<div class="deco-spoon">🥄</div>
+<div class="deco-spice">🌶️</div>
+<div class="deco-salt">🧂</div>
+
+<div class="hero">
+  <div class="hero-text">
+    <h1>🍽️ สรุปคะแนนสะสม "จานเด็ดเสร็จแน่"</h1>
+  </div>
+</div>
+
+<!-- Date picker (DD/MM/YYYY) -->
+<div class="picker-box">
+  <div>
+    <label>วันที่เริ่มต้น</label>
+    <input type="text" id="dateFrom" placeholder="09/10/2026" maxlength="10" oninput="autoSlash(this)"/>
+    <div class="input-hint">รูปแบบ วว/ดด/ปปปป</div>
+  </div>
+  <div>
+    <label>วันที่สิ้นสุด</label>
+    <input type="text" id="dateTo" placeholder="15/10/2026" maxlength="10" oninput="autoSlash(this)"/>
+    <div class="input-hint">รูปแบบ วว/ดด/ปปปป</div>
+  </div>
+  <button class="btn-apply" onclick="applyFilter()">คำนวณ</button>
+  <span class="range-label" id="rangeLabel"></span>
+</div>
+
+<!-- Week tabs -->
+<div class="week-tabs" id="weekTabs"></div>
+
+<!-- Podium -->
+<div class="podium" id="podium"></div>
+
+<!-- Summary cards -->
+<div class="summary-grid" id="summaryCards"></div>
+
+<!-- Score table -->
+<div class="section">
+  <div class="table-wrapper">
+    <div class="tbl-header">
+      <span class="tbl-title" id="tableTitle">📊 ผลคะแนน</span>
+      <span class="tbl-sub" id="tableDate"></span>
+    </div>
+    <table class="score">
+      <thead>
+        <tr>
+          <th>ชื่อ</th><th>คะแนนรวม</th><th>Extra Like</th>
+          <th>Home Chef</th><th>Foodie Reviewer</th><th>Lunch Box Art</th>
+          <th>Extra เพื่อนตาม</th><th>Extra โจทย์</th>
+          <th>❤️ Like</th><th>โพสต์</th>
+        </tr>
+      </thead>
+      <tbody id="scoreBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Menu table -->
+<div class="section">
+  <div class="table-wrapper">
+    <div class="tbl-header">
+      <span class="tbl-title">🍜 รายการเมนูทั้งหมดในช่วงนี้</span>
+      <span class="tbl-sub" id="menuCount"></span>
+    </div>
+    <table class="menu">
+      <thead>
+        <tr>
+          <th>วันที่</th><th>ชื่อ</th><th>เมนู</th><th>หมวด</th><th>❤️ Like</th>
+        </tr>
+      </thead>
+      <tbody id="menuBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('open')">✕</button>
+    <h2 id="modalName"></h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const RAW = [
+  {"date": "2026-10-09", "name": "พี่จักษ์", "menu": "อาหารคนรักสุขภาพ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-09", "name": "พี่ปู", "menu": "ไข่ทองคำล้อมหมูมหาสมบัติ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-09", "name": "พี่ริน", "menu": "น้ำเต้าหู้เจ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-09", "name": "รุต ปรีดา", "menu": "น้ำพริกหนุ่มน้อยอาตี๋", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-10", "name": "ไมค์", "menu": "ไม่บอกชื่อร้าน ส่งlocation", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-10", "name": "ต้น", "menu": "ปลาทูราดพริกป่น", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-10", "name": "น้ำ", "menu": "ปลาทับทิมสมุนไพรไฮโซ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-10", "name": "พี่จักษ์", "menu": "ร้านอาหารเจ สามแยกหนองสมัคร", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-10", "name": "พี่ปู", "menu": "จัดจานอาหารทะเล", "homeChef": 0, "foodie": 0, "lunchbox": 10, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-10", "name": "พี่ริน", "menu": "ผัดกระเพรา+ผัดถั่ว / จัดจานผลไม้", "homeChef": 0, "foodie": 10, "lunchbox": 10, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-10", "name": "รุต ปรีดา", "menu": "แกงไข่มดแดง ใส่แตงกวา หอมแมงลัก ปลาแดกนัวร์ๆ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-11", "name": "ไมค์", "menu": "ตำเส้นเล็ก กินทันที ขี้ทันควัน", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-11", "name": "พี่ปู", "menu": "ก๋วยเตี๋ยวตามใจปาก", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-11", "name": "พี่ริน", "menu": "ร้านอาหารเจ อิ่มบุญ อิ่มใจ อิ่มท้อง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-11", "name": "พี่ริน", "menu": "ไข่ไดโนเสาร์คู่ซี้", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 1},
+  {"date": "2026-10-11", "name": "พี่ริน", "menu": "เห็ดเข็มทองทอดกรอบลืมผัว", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 7},
+  {"date": "2026-10-11", "name": "พี่รุต", "menu": "ทอดมันช่างแม่มัน", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-11", "name": "รุต ปรีดา", "menu": "ต้มถั่วแระญี่ปุ่น อิคึ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 5, "countLike": 5},
+  {"date": "2026-10-12", "name": "พี่ริน", "menu": "ลาบเห็ดเจหอมๆ เขาคูบา", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-12", "name": "พี่ริน", "menu": "ชาไทยเจ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-12", "name": "พี่ริน", "menu": "ข้าวผัดไข่หัวใจทรงเครื่อง", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-13", "name": "พี่ปู", "menu": "น้ำชงตามใจปาก", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-13", "name": "พี่ริน", "menu": "3 ส บ้านยาง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-14", "name": "น้ำ", "menu": "ยำหอยแครงเคียงหมูยอ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-14", "name": "พี่ริน", "menu": "เห็นหน้าตาแบบนี้... แจ่วปลาร้าเจนะจ๊ะ!", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-14", "name": "พี่ริน", "menu": "แม่รวยเต้าหู้ทอด", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-15", "name": "ไมค์", "menu": "ข้าวเหนียวหมู&ตับพิกัด หน้าหมู่บ้าน ศศิธร23", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-15", "name": "ไมค์", "menu": "อ่อมหมู ไก่ทอด", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-15", "name": "ต้น", "menu": "ตังซื้อโมเดลหมด มาม่านี่แหละ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-15", "name": "ต้น", "menu": "ไม่รู้เรียกไร หิว", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-15", "name": "พี่จักษ์", "menu": "ตำปูปลาร้า แซบ ที่บ้านสวน", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 7},
+  {"date": "2026-10-15", "name": "พี่ริน", "menu": "ลิ้มรสความเด็ดของ ‘สะตอพยัคฆ์ผัดกะปิ’", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-15", "name": "พี่ริน", "menu": "เห็ดทองสะท้านภพผัดพริกแห้งเจ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-15", "name": "พี่ริน", "menu": "ชาไทยนมโอ๊ตเจของอินทนิล", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-15", "name": "พี่วัฒน์", "menu": "ชีวิตอาจจะขม แต่ต้มผักกาดดองถ้วยนี้กลมกล่อมกำลังดี", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 7},
+  {"date": "2026-10-15", "name": "รุต ปรีดา", "menu": "สลัดผักผลไม้", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-15", "name": "รุต ปรีดา", "menu": "ข้าวไข่เจียวตอนบ่าย 60 บาท", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-16", "name": "ไมค์", "menu": "มาครับ! วันนี้มาแนวอีสาน", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-16", "name": "น้ำ", "menu": "ยำหมูยอมะนาวสด", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-16", "name": "น้ำ", "menu": "ผัดเผ็ดปลาไหลกระชายซอยใบมะกรูดพริกจินดาเเดงสด", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-16", "name": "พี่จักษ์", "menu": "ข้าวเหนียวหมูฝอย หมูชิ้น", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-16", "name": "รุต ปรีดา", "menu": "เครื่องดื่มเย็นๆ หวาน หอมมันส์", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-17", "name": "ต้น", "menu": "หมดเขตแล้วเหรอครับ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-17", "name": "พี่จักษ์", "menu": "\"กินสาย สลายไขมัน\"", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-17", "name": "พี่ปู", "menu": "น้องเหนียวหมูไขมันสูงสุดแสนอร่อย ตลาดเช้าโคกหนามแท่ง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-17", "name": "พี่ปู", "menu": "พี่บาวคาเฟ่ไขมันต่ำ พิกัดพี่จักษ์ผู้ใจดีเลี้ยงน้อง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-18", "name": "ต้น", "menu": "พาเด็กมากินวันนึ่ง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-18", "name": "พี่จักษ์", "menu": "\"กินเพื่ออยู่ ไม่ใช่อยู่เพื่อกิน\"", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-18", "name": "พี่จักษ์", "menu": "ข้าวหมาก", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 1},
+  {"date": "2026-10-18", "name": "รุต ปรีดา", "menu": "ก๋วยเตี๋ยวต้มยำหมูปิ้งสเต็กนมสดพร้อมกับพริกดิบจี่", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-18", "name": "พี่ปู", "menu": "น้ำพริกปลารักษาคนไข้", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-18", "name": "พี่ปู", "menu": "ผักต้มสารพัดอย่าง", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-19", "name": "พี่ริน", "menu": "ไข่เจียวมหัศจรรย์", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 8},
+  {"date": "2026-10-19", "name": "น้ำ", "menu": "กล้วยทอดเจษฎาซอยบิ๊กซี", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-19", "name": "พี่ริน", "menu": "ส้มตำเจ๊รัตน์ สาขาตลาดอิ่มเอม", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-19", "name": "รุต ปรีดา", "menu": "ก๋วยเตี๋ยวเจ เส้นใหญ่ ร้านอาหารเจ  ตลาดหนองปลาหมอ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-19", "name": "น้ำ", "menu": "ไข่ทรงเครื่องคุณเขย", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-19", "name": "พี่จักษ์", "menu": "ต้มไก่พอทน", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-19", "name": "พี่จักษ์", "menu": "ทอดไก่พอเลย555", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-19", "name": "ไมค์", "menu": "ราดหน้าเส้นใหญ่หมูหมัก", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-20", "name": "พี่ริน", "menu": "หมูบดผัดพริกแกงใต้ ไฟลุกถึงเครื่อง!", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-20", "name": "พี่ริน", "menu": "มัทฉะมัดใจ อเมซอลเหมราช", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-20", "name": "รุต ปรีดา", "menu": "ข้าวเหนียวส้มหมูทอด กับพริกทอดแกล้มกัน", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-20", "name": "พี่ริน", "menu": "\"ยำวุ้นเส้นใสใจเด็ด\"", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 8},
+  {"date": "2026-10-20", "name": "ไมค์", "menu": "เมนูต้มฉับฉ่ายไข่ต้ม", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-21", "name": "พี่ปู", "menu": "กะเพรานี้มีแต่เครื่องใน ส่วนคนทำมีแต่ใจให้เธอ”", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-21", "name": "พี่ริน", "menu": "กะหล่ำทองคำผัดพริกแห้งเครื่องแน่น", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-21", "name": "พี่รุต", "menu": "กะเพราหงส์เเดง", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-21", "name": "พี่รุต", "menu": "ไข่เจียว พักยาว ปลาอย่าดุ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-21", "name": "น้ำ", "menu": "ก๋วยจั๊บเวียดนาม", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-21", "name": "พี่ริน", "menu": "ลาเต้เย็น\" จากร้านกาแฟพันธุ์ไทย (PunThai Coffee)", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-21", "name": "ไมค์", "menu": "ผัดมาม่า&ไก่เกาหลี", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-21", "name": "ต้น", "menu": "ลืมลงเมื่อเช้า🤣 ไม่น่าทำเกือบมาสาย😅", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-21", "name": "ต้น", "menu": "แตงกวาไข่", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-21", "name": "พี่วัฒน์", "menu": "ผัดผักบุ้งหมูสับทำเองง่ายๆ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 0},
+  {"date": "2026-10-21", "name": "พี่วัฒน์", "menu": "ผัดเห็ดออรินจิใส่เต้าหู้ไข่", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 7},
+  {"date": "2026-10-21", "name": "ไมค์", "menu": "ปลานิล🐟แดดเดียวทอดกรอบ ข้าวสวยร้อนๆ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-21", "name": "พี่ริน", "menu": "ผัดมาม่ากู้ชีพ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-21", "name": "รุต ปรีดา", "menu": "ซ็ทถนอมลำไส้ข้าวต้มโจ้ก  หมูหยององุ่น อะโวคาโด ส้มเขียวหวาน", "homeChef": 0, "foodie": 0, "lunchbox": 10, "extraFriend": 0, "extraTask": 0, "countLike": 7},
+  {"date": "2026-10-21", "name": "พี่ปู", "menu": "ก๋วยเตี๋ยวเนื้อรสแซบ พิกัด สี่แยกไฟแดง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-22", "name": "พี่ปู", "menu": "กะหล่ำไม่เดียวดาย เพราะมีไข่อยู่ข้าง ๆ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-22", "name": "พี่รุต", "menu": "เมนูจานด่วนดาวขำมิ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-22", "name": "พี่ริน", "menu": "ข้าวต้มมัดโบราณหน้าตาน่าจึ้", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-22", "name": "ไมค์", "menu": "กะเพราเนื่อเปื้อยพิกัด ก๋วยเตี๋ยวราชสีห์", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-22", "name": "น้ำ", "menu": "พิชซ่าฮาเล่", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-22", "name": "พี่ริน", "menu": "นมล้นชาใต้สายซ่า ท้าความง่วง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-22", "name": "รุต ปรีดา", "menu": "ซูชิรวมมิตร", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 0},
+  {"date": "2026-10-22", "name": "รุต ปรีดา", "menu": "น้ำปั่นบีทาเก้นปีโป้ 25+25+35", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-22", "name": "น้ำ", "menu": "ข้าวไข่เจียวกรอบขอบทอง", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 0},
+  {"date": "2026-10-22", "name": "น้ำ", "menu": "ต้มยำหมูสับซี้ดพริกขี้หนูสวน", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-22", "name": "พี่ริน", "menu": "มาม่าเพื่อยังชีพ  ปิดท้ายด้วยชาหมักอร่อย..กินเพื่ออยู่", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-23", "name": "พี่ริน", "menu": "ข้าวมันไก่สองสหาย", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-23", "name": "พี่ปู", "menu": "ข้าวมันไก่ ด้วยยยพิกัด แถวพระฉาย ข้าง CJ ชื่อร้าน อาม่า จร้า", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-23", "name": "น้ำ", "menu": "ครัวผนังแกงใต้ร้านอาหารข้าวแกงปักษ์ใต้", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-23", "name": "ไมค์", "menu": "fried chicken", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-23", "name": "ไมค์", "menu": "Tom Yum Goong & omelet", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-23", "name": "พี่วัฒน์", "menu": "ส้มรสเด็ด", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-23", "name": "พี่วัฒน์", "menu": "หมูติดมันมะนาว", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-23", "name": "น้ำ", "menu": "เย็นตาโฟสีชมพู หมึกกรอบ-เกี๊ยวโต", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-23", "name": "รุต ปรีดา", "menu": "สลัดผักผลไม้รวมมิตร", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 0},
+  {"date": "2026-10-23", "name": "รุต ปรีดา", "menu": "ไข่ตุ๋นทะเล กุ้ง ปูอัด", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-23", "name": "พี่รุต", "menu": "วิวิๆๆกินเเล้วดี", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-23", "name": "พี่ปู", "menu": "อาหารทะเล🦐🦑 พิกัด พัทยาใต้", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-23", "name": "พี่ริน", "menu": "ไก่ย่าง5ดาว ข้าวเหนียว+ซกเล็กขมๆ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-24", "name": "พี่ริน", "menu": "ต้มจืดผักกาดขาว", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-24", "name": "พี่ริน", "menu": "ไข่เจียวแป้งกรอบอร่อยเบาๆจร้า", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-24", "name": "พี่ริน", "menu": "ส้มตำปลาร้า พิกัด เดอะ ฟอเรสต์ 24 คาเฟ่ ประโคนชัย", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-24", "name": "รุต ปรีดา", "menu": "ตำซั่วปูปลาร้าปลาร้านัวร์ๆ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-24", "name": "น้ำ", "menu": "ปลาร้าแซลมอน", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-24", "name": "พี่ปู", "menu": "ยังอยุ่แถวๆ อาหารทะเลอยุ่", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-25", "name": "พี่ริน", "menu": "ใจเดียวข้าวเหนียวนุ่งปลาทอด", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-25", "name": "ไมค์", "menu": "ขนมโบราณ ไม่รู้ชื่อไร", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-25", "name": "พี่ริน", "menu": "ก๋วยเตี๋ยวไก่ที่มาไวๆคือก๋วยเตี๋ยวไก่มะระ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-25", "name": "น้ำ", "menu": "สตอเบอร์รี่ฉ่ำมง (เน้นความฉ่ำ ละมุน) Lotus Saraburi", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-25", "name": "น้ำ", "menu": "ต้มยำทะเลน้ำข้น", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-25", "name": "พี่ริน", "menu": "ชาไทยอินทนิล", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-25", "name": "รุต ปรีดา", "menu": "ผัดไทยกุ้งสด", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-25", "name": "พี่ริน", "menu": "โตเกียว แซบบ่ซ้ำจำสูตรไม่ได้ จุดพักรถหมวกเหล็กจร้า", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-26", "name": "พี่ริน", "menu": "ข้าวต้มมัดถั่วแดงพิกัด อ.ประโคนชัย", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-26", "name": "พี่ปู", "menu": "มจืดหัวไชเท้าแครอทใส่หมูผัดขนุนใส่หมูสับ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-26", "name": "รุต ปรีดา", "menu": "ผัดกะเพราหมูยอ พริกไทยดำใส่เห็ดนางฟ้า", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-26", "name": "พี่วัฒน์", "menu": "น้ำพริก ไข่ต้มยางมะตูม", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-27", "name": "พี่ริน", "menu": "ผัดพริกแกงหมูสับหน่อไม้ผัดไปง่วงไปอร่อยแน่", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-27", "name": "พี่ริน", "menu": "น้ำช่อดอกมะพร้าวน้ำหอม", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-27", "name": "รุต ปรีดา", "menu": "ข้าวห่อผัดกระเพราหน่อไม้หมูสับทางเข้าตลาดหนองปลาหมอ หน้านิคม", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-27", "name": "พี่ริน", "menu": "ฝรั่งสดกรอบบ้านแพ้ว", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-27", "name": "น้ำ", "menu": "หอยแมลงภู่ตัวโต ต้มลวกจิ้มซอสน้ำจิ้มถั่วตัด", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-28", "name": "พี่ปู", "menu": "น้ำส้ม มีวิตมินซีสูง ต่อต้านอนุมูลอิสระ ทำให้รุ้สึกสดชื้", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 0},
+  {"date": "2026-10-28", "name": "พี่ปู", "menu": "เมล็ดทานตะวันเป็นธัญพืชและอาหารว่างเพื่อสุขภาพที่อุดมไปด้วยสารอาหารสำคัญ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-28", "name": "พี่ริน", "menu": "หมูสับทอดกระเทียมกินกับข้าวสวยร้อนๆยามเช้าเข้ากันดีนะ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-28", "name": "น้ำ", "menu": "ลูกพลับแบบย่อ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-28", "name": "รุต ปรีดา", "menu": "บั๋นหมี่ (Bánh mì)", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-28", "name": "พี่ริน", "menu": "หมี่เกี๊ยวหมู", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-28", "name": "พี่ปู", "menu": "มาม่าต้มโคล้มใส่ต้นหอม & หอมแดง", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-28", "name": "น้ำ", "menu": "หลงใหลหมูกรอบ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-28", "name": "น้ำ", "menu": "แยมโรลส้มซัน", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-29", "name": "พี่ปู", "menu": "Breakfast", "homeChef": 0, "foodie": 0, "lunchbox": 10, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-29", "name": "พี่ปู", "menu": "apple for baby", "homeChef": 0, "foodie": 0, "lunchbox": 10, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-29", "name": "น้ำ", "menu": "แซ่บสะเดิดยำแหนมโบราณ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-29", "name": "พี่ปู", "menu": "สลัดผลไม้ พิกัด ตลาดนัดโคกหนามแท่ง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-29", "name": "น้ำ", "menu": "แอปเปิล", "homeChef": 0, "foodie": 0, "lunchbox": 10, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-29", "name": "รุต ปรีดา", "menu": "black forest", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-29", "name": "รุต ปรีดา", "menu": "เค้กมะพร้าว", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 0},
+  {"date": "2026-10-29", "name": "พี่ริน", "menu": "ชาตรามือ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 1},
+  {"date": "2026-10-29", "name": "รุต ปรีดา", "menu": "กินเตี๋ยวกัน เขาใหญ่", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-29", "name": "น้ำ", "menu": "น้ำสตรอเบอร์รี่ปั่นฉ่ำ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-29", "name": "พิ่ริน", "menu": "ไก่ KFC ชุดวิ้งก์แซบ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-29", "name": "ต้น", "menu": "ผัดกะเพราของแท้ อาหารมัง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-29", "name": "พี่ปู", "menu": "หมูกระทะ คนละ159", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-29", "name": "น้ำ", "menu": "แกงพะแนงหมู", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-30", "name": "พี่ปู", "menu": "ทอดปลา", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-30", "name": "พี่ปู", "menu": "ไข่ตุ๋น", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-30", "name": "น้ำ", "menu": "กล้วยเวียดนาม", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-30", "name": "น้ำ", "menu": "กล้วยทอดนายพัน", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-30", "name": "รุต ปรีดา", "menu": "ผัดกระเพราปลาหมึก", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-30", "name": "รุต ปรีดา", "menu": "Timber Tales Cafe and Bistro Khaoyai ทอดมันกุ้ง🥗 สลัดผัก สดๆกรอบๆ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-10-30", "name": "พี่ริน", "menu": "คั่วกลิ้งหมูราดข้าว ไข่ต้ม อุดมด้วยโปรตีน", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-30", "name": "น้ำ", "menu": "🥑เมนู​อะโวคาโด้ปั่นเนื้อนวล", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-30", "name": "พี่ริน", "menu": "เมนูเข้าครัวข้าวต้มไข่ลวกเบาๆท้องจร้า", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-30", "name": "น้ำ", "menu": "เมนูแหนมคลุกสมุนไพรสด", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-30", "name": "พี่ริน", "menu": "รีวิว เต้าทึงน้ำลำใย", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-10-31", "name": "พี่ปู", "menu": "เมนู แซนวิช", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-31", "name": "น้ำ", "menu": "🧋​มนต์รักชาไทย (เข้มข้น หอมมัน ชวนหลงใหล)", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-31", "name": "พี่ริน", "menu": "ไข่ดาวน้ำปลาพริกป่น เมนูประทังความหิวเพื่อความอยู่รอด", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-31", "name": "พี่ริน", "menu": "รีวิวต้มจืดหมูสับกินกับข้าวสวยอร่อยดีนะพิกัด ร้านแต๋วจ๋า", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-31", "name": "พี่เอ", "menu": "รีวิวอาหราซื้อมาอร่อยมากค่ะ กินกับเบียร์อร่อยมาก", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 6},
+  {"date": "2026-10-31", "name": "น้ำ", "menu": "แกงคั่วหอยขมสมุนไพรโบราณและยอดมะพร้าวนุ่ม", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-10-31", "name": "พี่ริน", "menu": "ีวิว หมูกระทะ ชุดรวม อิ่ม อร่อย ธนพล", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-10-31", "name": "รุต ปรีดา", "menu": "เจ๊ชูหมูกะทะสาขา 2", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-11-01", "name": "รุต ปรีดา", "menu": "🍘ข้าวจี่ทาไข่ ร้อนๆ", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-01", "name": "รุต ปรีดา", "menu": "กล้วยทอดเจษฎาทอด", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-01", "name": "น้ำ", "menu": "กล้วยทอดเจษฎาทอด", "homeChef": 0, "foodie": 0, "lunchbox": 0, "extraFriend": 5, "extraTask": 0, "countLike": 0},
+  {"date": "2026-11-01", "name": "น้ำ", "menu": "ข้าวต้มเลือดหมู โรงเจ เทศบาลหนองแค", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-11-01", "name": "พี่ริน", "menu": "รีวิว กาแฟเช้านี้ อเมริกาโน่ไม่หวาน  หอมกลิ่นกาแฟคั่วบด  บางจาก สระบุรี", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-01", "name": "น้ำ", "menu": "รีวิว กะเพาหมูกรอบหนังแก้ว", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-01", "name": "พี่ริน", "menu": "รีวิวแกงแกะ พะโล้กับแจ่วน้ำปลาพริกแกล้มกับสะตอ เข้ากันยูนะพิกัด ร้านแต๋วจ๋า", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-11-01", "name": "พี่ริน", "menu": "เมนูเข้าครัววันนี้ ต้มยำขาหมูเผา", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-11-01", "name": "น้ำ", "menu": "เมนูไก่ต้มน้ำปลา", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-01", "name": "พี่เอ", "menu": "รีวิวอาหารย่างเอง แซ่บนัว", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-11-02", "name": "พี่ริน", "menu": "ผัดพริกแกงหมูตุ๋น", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-02", "name": "น้ำ", "menu": "น้ำมะพร้าวผสมน้ำตาลสด หอมสดชื่น", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-11-02", "name": "น้ำ", "menu": "ข้าวเกรียบปลาเส้น กรอบอร่อย", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-02", "name": "พี่ริน", "menu": "ชาไทยโตนด มีความหอมของตาล", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-11-02", "name": "พี่ริน", "menu": "วิวขนมถั่วกวน ขนมไทยมีประโยชน์", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-02", "name": "รุต ปรีดา", "menu": "ชุดจัดจานผักเป็นยา 🥗", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-02", "name": "พี่ริน", "menu": "ถั่วตำใจ เผ็ดแซบอีหลีเด้อ", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 4},
+  {"date": "2026-11-02", "name": "พี่ปู", "menu": "ขยันเฮ็ดขยันกิน", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-11-02", "name": "พี่วัฒน์", "menu": "พริกผักล้นจาน มื้อไหนก็อบอุ่น", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 5},
+  {"date": "2026-11-02", "name": "พี่ปู", "menu": "ลอดช่องหวานร้อยพิกัด ตลาดนัดโคกหนามแท่ง", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2},
+  {"date": "2026-11-03", "name": "พี่ริน", "menu": "หมูตุ๋นผัดตะไคร้หอมกลิ่นตะไคร้", "homeChef": 10, "foodie": 0, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 3},
+  {"date": "2026-11-03", "name": "น้ำ", "menu": "ข้าวแต๋นน้ำแตงโมหอมหวานกรอบอร่อย Tiktok", "homeChef": 0, "foodie": 10, "lunchbox": 0, "extraFriend": 0, "extraTask": 0, "countLike": 2}
+];
+
+const WEEKS = [
+  { "label": "รวมทั้งหมด", "from": "2026-10-09", "to": "2026-11-03" },
+  { "label": "Week 1", "from": "2026-10-09", "to": "2026-10-15" },
+  { "label": "Week 2", "from": "2026-10-16", "to": "2026-10-22" },
+  { "label": "Week 3", "from": "2026-10-23", "to": "2026-10-29" },
+  { "label": "Week 4", "from": "2026-10-30", "to": "2026-11-03" }
+];
+
+
+// ============================================================
+// HELPERS
+// ============================================================
+function toISO(s){
+  // DD/MM/YYYY → YYYY-MM-DD
+  const m = s.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(!m) return null;
+  return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+}
+function toDisplay(iso){
+  // YYYY-MM-DD → DD/MM/YY
+  const p=iso.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0].slice(2);
+}
+function autoSlash(el){
+  let v=el.value.replace(/[^0-9]/g,'');
+  if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2);
+  if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5);
+  el.value=v;
+}
+
+// ============================================================
+// AGGREGATE
+// ============================================================
+function aggregate(fromISO, toISO){
+  const f=new Date(fromISO), t=new Date(toISO);
+  const filtered=RAW.filter(r=>{ const d=new Date(r.date); return d>=f && d<=t; });
+
+  const map={};
+  for(const r of filtered){
+    const n=r.name;
+    if(!map[n]) map[n]={name:n,homeChef:0,foodie:0,lunchbox:0,extraFriend:0,extraTask:0,countLike:0,posts:0,entries:[]};
+    map[n].homeChef+=r.homeChef; map[n].foodie+=r.foodie; map[n].lunchbox+=r.lunchbox;
+    map[n].extraFriend+=r.extraFriend; map[n].extraTask+=r.extraTask;
+    map[n].countLike+=r.countLike; map[n].posts+=1;
+    map[n].entries.push(r);
+  }
+
+  // Extra Like: rank-1=5pts, rank-2=3pts, others with like>0=1pt
+  const persons=Object.values(map);
+  const sorted=[...persons].sort((a,b)=>b.countLike-a.countLike);
+  persons.forEach(p=>{
+    const rank=sorted.findIndex(x=>x.name===p.name);
+    p.extraLike = p.countLike===0 ? 0 : rank===0 ? 5 : rank===1 ? 3 : 1;
+    p.total=p.homeChef+p.foodie+p.lunchbox+p.extraFriend+p.extraTask+p.extraLike;
+  });
+
+  return { persons:persons.sort((a,b)=>b.total-a.total), filtered };
+}
+
+function tagHtml(r){
+  let t='';
+  if(r.homeChef)    t+='<span class="tag tag-hc">Home Chef</span>';
+  if(r.foodie)      t+='<span class="tag tag-fd">Foodie</span>';
+  if(r.lunchbox)    t+='<span class="tag tag-lb">Lunch Box</span>';
+  if(r.extraTask)   t+='<span class="tag tag-et">Extra โจทย์</span>';
+  if(r.extraFriend) t+='<span class="tag tag-ef">Extra เพื่อน</span>';
+  return t||'<span class="zero">–</span>';
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderAll(){
+  const fromDisp=document.getElementById('dateFrom').value.trim();
+  const toDisp  =document.getElementById('dateTo').value.trim();
+  const from=toISO(fromDisp), to=toISO(toDisp);
+
+  document.getElementById('dateFrom').classList.toggle('input-error',!from);
+  document.getElementById('dateTo').classList.toggle('input-error',!to);
+  if(!from||!to){ document.getElementById('rangeLabel').textContent='รูปแบบวันที่ไม่ถูกต้อง'; return; }
+  if(from>to){ document.getElementById('rangeLabel').textContent='วันเริ่มต้นต้องน้อยกว่าวันสิ้นสุด'; return; }
+
+  document.getElementById('rangeLabel').textContent=fromDisp+' – '+toDisp;
+  document.getElementById('tableDate').textContent =fromDisp+' – '+toDisp;
+
+  const {persons,filtered}=aggregate(from,to);
+  renderPodium(persons);
+  renderSummary(persons);
+  renderScore(persons);
+  renderMenu(filtered);
+  highlightTab(from,to);
+}
+
+function renderPodium(persons){
+  if(!persons.length){document.getElementById('podium').innerHTML='';return;}
+  const medals=['🥇','🥈','🥉'],rClass=['rank-1','rank-2','rank-3'];
+  const top=persons.slice(0,3);
+  const order=top.length>=3?[top[1],top[0],top[2]]:top;
+  const ri   =top.length>=3?[1,0,2]:[0,1,2];
+  document.getElementById('podium').innerHTML=order.map((p,i)=>`
+    <div class="podium-card ${rClass[ri[i]]}">
+      <div class="podium-medal">${medals[ri[i]]}</div>
+      <div class="podium-name">${p.name}</div>
+      <div class="podium-pts">${p.total} <span>pts</span></div>
+    </div>`).join('');
+}
+
+function renderSummary(persons){
+  const tp=persons.reduce((s,p)=>s+p.posts,0);
+  const tl=persons.reduce((s,p)=>s+p.countLike,0);
+  const topL=persons.reduce((a,b)=>a.countLike>b.countLike?a:b,{name:'-',countLike:0});
+  document.getElementById('summaryCards').innerHTML=`
+    <div class="s-card"><div class="s-val">${persons.length}</div><div class="s-lbl">คนเข้าร่วม</div></div>
+    <div class="s-card"><div class="s-val">${tp}</div><div class="s-lbl">โพสต์รวม</div></div>
+    <div class="s-card"><div class="s-val">${tl}</div><div class="s-lbl">Like รวม</div></div>
+    <div class="s-card"><div class="s-val">${topL.name}</div><div class="s-lbl">Like สูงสุด (${topL.countLike})</div></div>`;
+}
+
+function renderScore(persons){
+  if(!persons.length){
+    document.getElementById('scoreBody').innerHTML='<tr><td colspan="10" class="no-data">ไม่มีข้อมูลในช่วงนี้</td></tr>';return;
+  }
+  const rc=['r1','r2','r3'];
+  const v=x=>x?x:'<span class="zero">–</span>';
+  document.getElementById('scoreBody').innerHTML=persons.map((p,i)=>`
+    <tr>
+      <td><span class="rank-badge ${rc[i]||'rn'}">${i+1}</span>
+          <span class="clickable" onclick="showDetail('${p.name}')">${p.name}</span></td>
+      <td class="pts-cell">${p.total}</td>
+      <td class="likes-cell">${v(p.extraLike)}</td>
+      <td>${v(p.homeChef)}</td><td>${v(p.foodie)}</td><td>${v(p.lunchbox)}</td>
+      <td>${v(p.extraFriend)}</td><td>${v(p.extraTask)}</td>
+      <td class="likes-cell">${p.countLike}</td><td>${p.posts}</td>
+    </tr>`).join('');
+  window._personMap={};
+  persons.forEach(p=>window._personMap[p.name]=p);
+}
+
+function renderMenu(filtered){
+  document.getElementById('menuCount').textContent=`${filtered.length} รายการ`;
+  if(!filtered.length){
+    document.getElementById('menuBody').innerHTML='<tr><td colspan="5" class="no-data">ไม่มีข้อมูล</td></tr>';return;
+  }
+  const sorted=[...filtered].sort((a,b)=>a.date.localeCompare(b.date)||a.name.localeCompare(b.name));
+  document.getElementById('menuBody').innerHTML=sorted.map(r=>`
+    <tr>
+      <td class="td-date">${toDisplay(r.date)}</td>
+      <td class="td-name">${r.name}</td>
+      <td class="td-menu">${r.menu||'–'}</td>
+      <td class="td-tags">${tagHtml(r)}</td>
+      <td class="td-like">❤️ ${r.countLike}</td>
+    </tr>`).join('');
+}
+
+function showDetail(name){
+  const p=(window._personMap||{})[name];
+  if(!p) return;
+  document.getElementById('modalName').textContent='📋 '+name;
+  document.getElementById('modalBody').innerHTML=p.entries.map(r=>`
+    <div class="detail-row">
+      <span class="detail-date">${toDisplay(r.date)}</span>
+      <span class="detail-menu">${r.menu||'–'}</span>
+      ${tagHtml(r)}
+      <span class="detail-like">❤️ ${r.countLike}</span>
+    </div>`).join('');
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(e){ if(e.target===document.getElementById('modalBg')) document.getElementById('modalBg').classList.remove('open'); }
+
+// ============================================================
+// TABS
+// ============================================================
+function renderTabs(){
+  document.getElementById('weekTabs').innerHTML=WEEKS.map((w,i)=>
+    `<button class="week-tab ${i===0?'all-tab':''}" id="tab_${i}" onclick="selectWeek(${i})">${w.label}</button>`
+  ).join('');
+}
+function selectWeek(i){
+  document.getElementById('dateFrom').value=toDisplay(WEEKS[i].from);
+  document.getElementById('dateTo').value  =toDisplay(WEEKS[i].to);
+  renderAll();
+}
+function highlightTab(from,to){
+  WEEKS.forEach((w,i)=>{
+    const el=document.getElementById('tab_'+i);
+    if(el) el.classList.toggle('active',w.from===from&&w.to===to);
+  });
+}
+function applyFilter(){ renderAll(); }
+
+// init — default Week 1
+renderTabs();
+selectWeek(1);
+</script>
+</body>
+</html>
