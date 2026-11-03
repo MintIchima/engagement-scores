@@ -80,7 +80,14 @@
     .clickable{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
     .clickable:hover{color:#e8a060}
 
-    /* menu table */
+    /* name filter pills */
+    .filter-bar{padding:12px 16px;background:rgba(0,0,0,.2);border-bottom:1px solid rgba(255,255,255,.05);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .filter-bar-label{font-size:.78rem;color:#c8a882;margin-right:4px}
+    .name-pill{padding:4px 14px;border-radius:999px;border:1.5px solid rgba(200,114,42,.4);background:transparent;color:#c8a882;cursor:pointer;font-size:.8rem;transition:.15s}
+    .name-pill:hover{border-color:#c8722a;color:#e8a060}
+    .name-pill.active{background:#c8722a;border-color:#c8722a;color:#fff;font-weight:700}
+    .name-pill.all{border-color:#b09070;color:#b09070}
+    .name-pill.all.active{background:#b09070;border-color:#b09070;color:#1a1510}
     table.menu{width:100%;border-collapse:collapse;background:rgba(0,0,0,.15);font-size:.85rem}
     table.menu thead tr{background:rgba(200,114,42,.1)}
     table.menu thead th{padding:10px 13px;text-align:left;color:#c8a882;font-weight:700;border-bottom:1px solid rgba(200,114,42,.2);white-space:nowrap}
@@ -176,6 +183,9 @@
     <div class="tbl-header">
       <span class="tbl-title">🍜 รายการเมนูทั้งหมดในช่วงนี้</span>
       <span class="tbl-sub" id="menuCount"></span>
+    </div>
+    <div class="filter-bar" id="menuFilterBar">
+      <span class="filter-bar-label">กรองชื่อ:</span>
     </div>
     <table class="menu">
       <thead>
@@ -535,18 +545,42 @@ function renderScore(persons){
 
 function renderMenu(filtered){
   document.getElementById('menuCount').textContent=`${filtered.length} รายการ`;
-  if(!filtered.length){
-    document.getElementById('menuBody').innerHTML='<tr><td colspan="5" class="no-data">ไม่มีข้อมูล</td></tr>';return;
-  }
-  const sorted=[...filtered].sort((a,b)=>b.date.localeCompare(a.date)||a.name.localeCompare(b.name));
-  document.getElementById('menuBody').innerHTML=sorted.map(r=>`
-    <tr>
-      <td class="td-date">${toDisplay(r.date)}</td>
-      <td class="td-name">${r.name}</td>
-      <td class="td-menu">${r.menu||'–'}</td>
-      <td class="td-tags">${tagHtml(r)}</td>
-      <td class="td-like">❤️ ${r.countLike}</td>
-    </tr>`).join('');
+
+  // สร้าง name pills
+  const names = ['ทั้งหมด', ...new Set(filtered.map(r=>r.name).sort())];
+  const bar = document.getElementById('menuFilterBar');
+  // เก็บชื่อที่ active ไว้ (ถ้ามี)
+  const prevActive = bar.querySelector('.name-pill.active:not(.all)');
+  const prevName = prevActive ? prevActive.dataset.name : null;
+  // สร้าง pill ใหม่
+  bar.innerHTML = '<span class="filter-bar-label">กรองชื่อ:</span>' +
+    names.map(n=>`<button class="name-pill ${n==='ทั้งหมด'?'all':''} ${(!prevName&&n==='ทั้งหมด')||prevName===n?'active':''}" data-name="${n}" onclick="filterMenu(this,'${n.replace(/'/g,"\\'")}')"> ${n}</button>`).join('');
+
+  window._menuFiltered = filtered;
+  applyMenuFilter(prevName && names.includes(prevName) ? prevName : null);
+}
+
+function filterMenu(el, name){
+  document.querySelectorAll('.name-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  applyMenuFilter(name==='ทั้งหมด' ? null : name);
+}
+
+function applyMenuFilter(name){
+  const filtered = window._menuFiltered || [];
+  const data = name ? filtered.filter(r=>r.name===name) : filtered;
+  const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date)||a.name.localeCompare(b.name));
+  document.getElementById('menuBody').innerHTML = sorted.length
+    ? sorted.map(r=>`
+        <tr>
+          <td class="td-date">${toDisplay(r.date)}</td>
+          <td class="td-name">${r.name}</td>
+          <td class="td-menu">${r.menu||'–'}</td>
+          <td class="td-tags">${tagHtml(r)}</td>
+          <td class="td-like">❤️ ${r.countLike}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="5" class="no-data">ไม่มีข้อมูล</td></tr>';
+  document.getElementById('menuCount').textContent=`${sorted.length} รายการ`;
 }
 
 function showDetail(name){
