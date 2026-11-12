@@ -27,7 +27,7 @@ for i, row in enumerate(ws.iter_rows(values_only=True)):
     rows.append({
         "date":        dv.strftime("%Y-%m-%d"),
         "name":        name,
-        "menu":        (menu or "").strip(),
+        "menu":        ''.join(c for c in (menu or '').strip() if ord(c) < 65536 and c not in ['"','"','\u2019','\u2018']),
         "homeChef":    int(hc) if hc else 0,
         "foodie":      int(fd) if fd else 0,
         "lunchbox":    int(lb) if lb else 0,
