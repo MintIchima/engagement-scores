@@ -84,6 +84,16 @@ html_new = re.sub(r"const WEEKS = \[[\s\S]*?\];", new_weeks, html_new)
 with open(HTML, "w", encoding="utf-8") as f:
     f.write(html_new)
 
+# touch timestamp เพื่อให้ git detect การเปลี่ยนแปลงเสมอ
+import time
+ts = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+html_new = html_new.replace(
+    "</title>",
+    f"</title><!-- updated: {ts} -->"
+)
+with open(HTML, "w", encoding="utf-8") as f:
+    f.write(html_new)
+
 print("🎉 อัปเดตสำเร็จ!")
 for w in weeks_all:
     print(f"   {w['label']:15s}  {w['from']} → {w['to']}")
