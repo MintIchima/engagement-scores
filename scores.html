@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>สรุปคะแนนสะสม จานเด็ดเสร็จแน่ <!-- 13/11/2026 10:54 --></title>
+<title>สรุปคะแนนสะสม จานเด็ดเสร็จแน่ <!-- 13/11/2026 10:59 --></title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI','Sarabun',sans-serif;background:#f5f0eb;min-height:100vh;padding:20px 12px 48px;color:#2d2018}
@@ -141,7 +141,7 @@ function dPod(ps){
 }
 function dCards(ps){
   var tp=ps.reduce(function(s,p){return s+p.posts;},0),tl=ps.reduce(function(s,p){return s+p.lk;},0),ml=ps.reduce(function(a,b){return a.lk>b.lk?a:b;},{name:'-',lk:0});
-  document.getElementById('cds').innerHTML='<div class="card"><div class="cv">'+ps.length+'</div><div class="cl">\u0E04;\u0E19\u0E40\u0E02;\u0E49\u0E32\u0E23;\u0E48\u0E27;\u0E21</div></div>'+'<div class="card"><div class="cv">'+tp+'</div><div class="cl">\u0E42\u0E1E\u0E2A\u0E15\u0E4C\u0E23\u0E27\u0E21</div></div>'+'<div class="card"><div class="cv">'+tl+'</div><div class="cl">Like \u0E23\u0E27\u0E21</div></div>'+'<div class="card"><div class="cv">'+ml.name+'</div><div class="cl">Like \u0E2A\u0E39\u0E07\u0E2A\u0E38\u0E14 ('+ml.lk+')</div></div>';
+  document.getElementById('cds').innerHTML='<div class="card"><div class="cv">'+ps.length+'</div><div class="cl">คนเข้าร่วม</div></div>'+'<div class="card"><div class="cv">'+tp+'</div><div class="cl">\u0E42\u0E1E\u0E2A\u0E15\u0E4C\u0E23\u0E27\u0E21</div></div>'+'<div class="card"><div class="cv">'+tl+'</div><div class="cl">Like \u0E23\u0E27\u0E21</div></div>'+'<div class="card"><div class="cv">'+ml.name+'</div><div class="cl">Like \u0E2A\u0E39\u0E07\u0E2A\u0E38\u0E14 ('+ml.lk+')</div></div>';
 }
 function dScore(ps){
   var rc=['r1','r2','r3'];
